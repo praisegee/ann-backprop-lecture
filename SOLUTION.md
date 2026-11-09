@@ -139,4 +139,4 @@ The output moved toward the target, so the update worked. Repeating these steps 
 epochs pushes O6 closer to 1, until a stopping condition is met: an error threshold, a fixed
 number of epochs, or the misclassification rate.
 
-Run `python3 backprop_exercise.py` to reproduce every number above.
+Run `python3 01_backprop_exercise.py` to reproduce every number above, or `lectrace serve` to step through it interactively.
