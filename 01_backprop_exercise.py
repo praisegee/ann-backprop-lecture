@@ -71,16 +71,16 @@ def main():
     I4 = net_input([x[1], x[2], x[3]], [w["w14"], w["w24"], w["w34"]], b["b4"])  # @inspect I4
     O4 = sigmoid(I4)  # @inspect O4
     text(
-        f"$I_4 = (0.2)(1) + (0.4)(0) + (-0.5)(1) + (-0.4) = {I4:.4f}$\n\n"
-        f"$O_4 = \\dfrac{{1}}{{1 + e^{{0.7}}}} = {O4:.4f}$"
+        f"$I_4 = (0.2)(1) + (0.4)(0) + (-0.5)(1) + (-0.4) = {I4:.3f}$\n\n"
+        f"$O_4 = \\dfrac{{1}}{{1 + e^{{0.7}}}} = {O4:.3f}$"
     )
 
     text("### Hidden unit 5")
     I5 = net_input([x[1], x[2], x[3]], [w["w15"], w["w25"], w["w35"]], b["b5"])  # @inspect I5
     O5 = sigmoid(I5)  # @inspect O5
     text(
-        f"$I_5 = (-0.3)(1) + (0.1)(0) + (0.2)(1) + 0.2 = {I5:.4f}$\n\n"
-        f"$O_5 = \\dfrac{{1}}{{1 + e^{{-0.1}}}} = {O5:.4f}$"
+        f"$I_5 = (-0.3)(1) + (0.1)(0) + (0.2)(1) + 0.2 = {I5:.3f}$\n\n"
+        f"$O_5 = \\dfrac{{1}}{{1 + e^{{-0.1}}}} = {O5:.3f}$"
     )
 
     text("### Output unit 6")
@@ -88,18 +88,18 @@ def main():
     I6 = net_input([O4, O5], [w["w46"], w["w56"]], b["b6"])  # @inspect I6
     O6 = sigmoid(I6)  # @inspect O6
     text(
-        f"$I_6 = (-0.3)({O4:.4f}) + (-0.2)({O5:.4f}) + 0.1 = {I6:.4f}$\n\n"
-        f"$O_6 = \\dfrac{{1}}{{1 + e^{{{-I6:.4f}}}}} = {O6:.4f}$"
+        f"$I_6 = (-0.3)({O4:.3f}) + (-0.2)({O5:.3f}) + 0.1 = {I6:.3f}$\n\n"
+        f"$O_6 = \\dfrac{{1}}{{1 + e^{{{-I6:.3f}}}}} = {O6:.3f}$"
     )
 
     table(
-        [[4, round(I4, 4), round(O4, 4)], [5, round(I5, 4), round(O5, 4)], [6, round(I6, 4), round(O6, 4)]],
+        [[4, round(I4, 3), round(O4, 3)], [5, round(I5, 3), round(O5, 3)], [6, round(I6, 3), round(O6, 3)]],
         headers=["Unit j", "Net input I_j", "Output O_j"],
         caption="Forward pass results",
     )
     text(
-        f"The network predicts **{O6:.4f}**, but the target is **1**. "
-        f"It is off by $T - O_6 = {T - O6:.4f}$, so we need to correct the parameters."
+        f"The network predicts **{O6:.3f}**, but the target is **1**. "
+        f"It is off by $T - O_6 = {T - O6:.3f}$, so we need to correct the parameters."
     )
 
     # @state Backward pass
@@ -107,24 +107,36 @@ def main():
     text("Go right to left. Start at the output unit, then pass its error back to the hidden units.")
 
     text("### Output unit 6")
+    error = round(T - O6, 3)  # @inspect error
+    text(f"Raw output error: $T - O_6 = 1 - {O6:.3f} = {error:.3f}$")
+    text(f"Sigmoid derivative: $O_6(1-O_6) = ({O6:.3f})({1 - O6:.3f}) = {O6 * (1 - O6):.3f}$")
     Err6 = output_error(O6, T)  # @inspect Err6
     text(
-        f"$Err_6 = O_6(1-O_6)(T-O_6) = ({O6:.4f})(1-{O6:.4f})(1-{O6:.4f}) = {Err6:.4f}$"
+        f"$$Err_6 = O_6(1-O_6)(T-O_6) = ({O6:.3f})({1 - O6:.3f})({error:.3f}) = \\mathbf{{{Err6:.3f}}}$$"
     )
     text("$Err_6$ is positive, so the output must **go up**.")
 
     text("### Hidden unit 5")
     text("Unit 5 feeds only unit 6, so the sum $\\sum_k Err_k w_{5k}$ has a single term: $Err_6\\,w_{56}$.")
+    text(
+        f"Sigmoid derivative: $O_5(1-O_5) = ({O5:.3f})({1 - O5:.3f}) = {O5 * (1 - O5):.3f}$  \n"
+        f"Error sent back from unit 6: $Err_6\\,w_{{56}} = ({Err6:.3f})(-0.2) = {Err6 * w['w56']:.4f}$"
+    )
     Err5 = hidden_error(O5, [Err6], [w["w56"]])  # @inspect Err5
     text(
-        f"$Err_5 = O_5(1-O_5)\\,Err_6\\,w_{{56}} = ({O5:.4f})(1-{O5:.4f})({Err6:.4f})(-0.2) = {Err5:.4f}$"
+        f"$$Err_5 = O_5(1-O_5)\\,Err_6\\,w_{{56}} = ({O5:.3f})({1 - O5:.3f})({Err6:.3f})(-0.2) = \\mathbf{{{Err5:.3f}}}$$"
     )
 
     text("### Hidden unit 4")
+    text(
+        f"Sigmoid derivative: $O_4(1-O_4) = ({O4:.3f})({1 - O4:.3f}) = {O4 * (1 - O4):.3f}$  \n"
+        f"Error sent back from unit 6: $Err_6\\,w_{{46}} = ({Err6:.3f})(-0.3) = {Err6 * w['w46']:.4f}$"
+    )
     Err4 = hidden_error(O4, [Err6], [w["w46"]])  # @inspect Err4
     text(
-        f"$Err_4 = O_4(1-O_4)\\,Err_6\\,w_{{46}} = ({O4:.4f})(1-{O4:.4f})({Err6:.4f})(-0.3) = {Err4:.4f}$"
+        f"$$Err_4 = O_4(1-O_4)\\,Err_6\\,w_{{46}} = ({O4:.3f})({1 - O4:.3f})({Err6:.3f})(-0.3) = \\mathbf{{{Err4:.3f}}}$$"
     )
+    image("backprop.svg", width=620)
     note(
         "The hidden errors use the **old** weights $w_{46}$ and $w_{56}$. "
         "Compute every error first, then update."
@@ -134,10 +146,15 @@ def main():
         "a hidden unit that is too active pushes the output down."
     )
     table(
-        [[6, round(Err6, 4)], [5, round(Err5, 4)], [4, round(Err4, 4)]],
-        headers=["Unit j", "Err_j"],
-        caption="Errors",
+        [
+            [6, O6, "O6(1−O6)(T−O6)", f"({O6:.3f})({1 - O6:.3f})({error:.3f})", Err6],
+            [5, O5, "O5(1−O5)·Err6·w56", f"({O5:.3f})({1 - O5:.3f})({Err6:.3f})(−0.2)", Err5],
+            [4, O4, "O4(1−O4)·Err6·w46", f"({O4:.3f})({1 - O4:.3f})({Err6:.3f})(−0.3)", Err4],
+        ],
+        headers=["Unit j", "O_j", "Formula", "Substitution", "Err_j"],
+        caption="Error values from backpropagation",
     )
+    note("Values are rounded to 3 decimal places at each step, as you would on paper.")
 
     # @state Weight updates
     text("## 6. Updating the weights")
@@ -149,8 +166,8 @@ def main():
     for name in ["w46", "w56", "w14", "w15", "w24", "w25", "w34", "w35"]:
         i, j = int(name[1]), int(name[2])
         new_w[name], dw = update_weight(w[name], l, Err[j], O[i])  # @inspect new_w
-        rows.append([name, w[name], f"({l})({Err[j]:.4f})({O[i]:.4f}) = {dw:+.4f}", round(new_w[name], 4)])
-    table(rows, headers=["Weight", "Old", "Δw = l·Err_j·O_i", "New"], caption="Weight updates")
+        rows.append([name, w[name], f"Err{j} = {Err[j]:.3f}", f"O{i} = {O[i]:.3f}", f"({l})({Err[j]:.3f})({O[i]:.3f}) = {dw:+.3f}", new_w[name]])
+    table(rows, headers=["Weight", "Old", "Err_j", "O_i", "Δw = l·Err_j·O_i", "New"], caption="Weight updates")
     note("$w_{24}$ and $w_{25}$ do not change because $x_2 = 0$: an input of zero contributed nothing, so it gets no blame.")
 
     # @state Bias updates
@@ -161,8 +178,8 @@ def main():
     for name in ["b6", "b5", "b4"]:
         j = int(name[1])
         new_b[name], db = update_bias(b[name], l, Err[j])  # @inspect new_b
-        rows.append([name, b[name], f"({l})({Err[j]:.4f}) = {db:+.4f}", round(new_b[name], 4)])
-    table(rows, headers=["Bias", "Old", "Δb = l·Err_j", "New"], caption="Bias updates")
+        rows.append([name, b[name], f"Err{j} = {Err[j]:.3f}", f"({l})({Err[j]:.3f}) = {db:+.3f}", new_b[name]])
+    table(rows, headers=["Bias", "Old", "Err_j", "Δb = l·Err_j", "New"], caption="Bias updates")
 
     # @state Check
     text("## 8. Did it help?")
@@ -171,11 +188,11 @@ def main():
     O5n = sigmoid(net_input([x[1], x[2], x[3]], [new_w["w15"], new_w["w25"], new_w["w35"]], new_b["b5"]))  # @stepover
     O6n = sigmoid(net_input([O4n, O5n], [new_w["w46"], new_w["w56"]], new_b["b6"]))  # @stepover @inspect O6n
     table(
-        [["Before update", round(O6, 4), round(T - O6, 4)], ["After one update", round(O6n, 4), round(T - O6n, 4)]],
+        [["Before update", round(O6, 3), round(T - O6, 3)], ["After one update", round(O6n, 3), round(T - O6n, 3)]],
         headers=["", "Output O6", "Error T − O6"],
     )
     text(
-        f"The output rose from **{O6:.4f}** to **{O6n:.4f}**, closer to the target of 1. "
+        f"The output rose from **{O6:.3f}** to **{O6n:.3f}**, closer to the target of 1. "
         "One update moved the network in the right direction."
     )
 
@@ -199,32 +216,33 @@ def net_input(inputs, weights, bias):
     total = bias
     for o, wt in zip(inputs, weights):
         total += wt * o
-    return total
+    return round(total, 3)
 
 
 def sigmoid(z):
-    return 1 / (1 + math.exp(-z))
+    return round(1 / (1 + math.exp(-z)), 3)
 
 
 def output_error(o, target):
     derivative = o * (1 - o)
-    return derivative * (target - o)
+    error = target - o
+    return round(derivative * error, 3)
 
 
 def hidden_error(o, next_errors, next_weights):
     derivative = o * (1 - o)
     back = sum(e * wt for e, wt in zip(next_errors, next_weights))
-    return derivative * back
+    return round(derivative * back, 3)
 
 
 def update_weight(old, lr, err, o_in):
-    delta = lr * err * o_in
-    return old + delta, delta
+    delta = round(lr * err * o_in, 3) + 0.0  # + 0.0 turns -0.0 into 0.0
+    return round(old + delta, 3), delta
 
 
 def update_bias(old, lr, err):
-    delta = lr * err
-    return old + delta, delta
+    delta = round(lr * err, 3) + 0.0
+    return round(old + delta, 3), delta
 
 
 if __name__ == "__main__":
