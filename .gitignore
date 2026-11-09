@@ -2,3 +2,4 @@
 # lectrace
 _site/
 .lectrace_cache.json
+__pycache__/
