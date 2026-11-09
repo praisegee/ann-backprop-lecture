@@ -60,8 +60,8 @@ def main():
     text("**Updates**:")
     text("$$\\Delta w_{ij} = l\\cdot Err_j\\cdot O_i, \\qquad w_{ij} \\leftarrow w_{ij} + \\Delta w_{ij}$$")
     text("$$\\Delta b_j = l\\cdot Err_j, \\qquad b_j \\leftarrow b_j + \\Delta b_j$$")
-    note("$O(1-O)$ is the derivative of the sigmoid, which is why it appears in both error formulas.")
-    note("For an input unit, the output is just the input: $O_i = x_i$.")
+    note("O(1 − O) is the derivative of the sigmoid, which is why it appears in both error formulas.")
+    note("For an input unit, the output is just the input: Oᵢ = xᵢ.")
 
     # @state Forward pass
     text("## 4. Forward propagation")
@@ -138,11 +138,11 @@ def main():
     )
     image("backprop.svg", width=620)
     note(
-        "The hidden errors use the **old** weights $w_{46}$ and $w_{56}$. "
+        "The hidden errors use the OLD weights w46 and w56. "
         "Compute every error first, then update."
     )
     note(
-        "The hidden errors are negative because $w_{46}$ and $w_{56}$ are negative: "
+        "The hidden errors are negative because w46 and w56 are negative: "
         "a hidden unit that is too active pushes the output down."
     )
     table(
@@ -168,7 +168,7 @@ def main():
         new_w[name], dw = update_weight(w[name], l, Err[j], O[i])  # @inspect new_w
         rows.append([name, w[name], f"Err{j} = {Err[j]:.3f}", f"O{i} = {O[i]:.3f}", f"({l})({Err[j]:.3f})({O[i]:.3f}) = {dw:+.3f}", new_w[name]])
     table(rows, headers=["Weight", "Old", "Err_j", "O_i", "Δw = l·Err_j·O_i", "New"], caption="Weight updates")
-    note("$w_{24}$ and $w_{25}$ do not change because $x_2 = 0$: an input of zero contributed nothing, so it gets no blame.")
+    note("w24 and w25 do not change because x2 = 0: an input of zero contributed nothing, so it gets no blame.")
 
     # @state Bias updates
     text("## 7. Updating the biases")
